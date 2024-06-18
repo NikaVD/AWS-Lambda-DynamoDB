@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Assignment2
+
+  Sample SAM Template for Assignment2
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Runtime: java8.al2
+    MemorySize: 512
+    Timeout: 30
+    Environment:
+        Variables:
+          CUSTOMERS_TABLE: !Ref CustomersTable
+
+Resources:
+  CustomersTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+        PrimaryKey:
+            Name: id
+            Type: Number
+  CreateCustomerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: assignment2
+      Handler: com.veronica.aws.lambda.ass2.CreateCustomer::createCustomer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CustomersTable
+      Events:
+        OrderEvents:
+            Type: Api
+            Properties:
+                Path: /customers
+                Method: POST
+  ReadCustomerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: assignment2
+      Handler: com.veronica.aws.lambda.ass2.ReadCustomer::readCustomer
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref CustomersTable
+      Events:
+        OrderEvents:
+            Type: Api
+            Properties:
+                Path: /customers
+                Method: GET
+
